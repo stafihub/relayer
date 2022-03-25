@@ -47,7 +47,7 @@ func (r RelayerTxResponse) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 type KeyProvider interface {
 	CreateKeystore(path string) error
 	KeystoreCreated(path string) bool
-	AddKey(name string) (output *KeyOutput, err error)
+	AddKey(name string) (ko *KeyOutput, err error)
 	RestoreKey(name, mnemonic string) (address string, err error)
 	ShowAddress(name string) (address string, err error)
 	ListAddresses() (map[string]string, error)
