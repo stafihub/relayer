@@ -982,6 +982,21 @@ func (cc *CosmosProvider) QueryIBCHeader(ctx context.Context, h int64) (provider
 	if h == 0 {
 		return nil, fmt.Errorf("height cannot be 0")
 	}
+	if cc.LightProvider.ChainID() == "stafihub-1" && h < 900499 {
+		cc.log.Info(
+			"requesting old client",
+			zap.Int64("height", h),
+		)
+		lightBlock, err := cc.oldClient.LightProvider.LightBlock(ctx, h)
+		if err != nil {
+			return nil, err
+		}
+		return CosmosIBCHeader{
+			SignedHeader: lightBlock.SignedHeader,
+			ValidatorSet: lightBlock.ValidatorSet,
+		}, nil
+
+	}
 
 	lightBlock, err := cc.LightProvider.LightBlock(ctx, h)
 	if err != nil {

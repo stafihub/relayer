@@ -64,11 +64,29 @@ func (pc CosmosProviderConfig) NewProvider(log *zap.Logger, homepath string, deb
 	if err != nil {
 		return nil, err
 	}
+
+	oldChainClientConfig := ChainClientConfig(&pc)
+
+	if oldChainClientConfig.ChainID == "stafihub-1" {
+		oldChainClientConfig.RPCAddr = "https://public-rpc2.stafihub.io:443"
+	}
+
+	oldCc, err := lens.NewChainClient(
+		log.With(zap.String("sys", "chain_client")),
+		oldChainClientConfig,
+		homepath,
+		os.Stdin,
+		os.Stdout,
+	)
+	if err != nil {
+		return nil, err
+	}
 	pc.ChainName = chainName
 
 	return &CosmosProvider{
 		log:         log,
 		ChainClient: *cc,
+		oldClient:   *oldCc,
 		PCfg:        pc,
 	}, nil
 }
@@ -99,6 +117,7 @@ type CosmosProvider struct {
 	PCfg CosmosProviderConfig
 
 	lens.ChainClient
+	oldClient      lens.ChainClient
 	nextAccountSeq uint64
 	txMu           sync.Mutex
 
